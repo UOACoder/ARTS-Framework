@@ -1,0 +1,14 @@
+# --- Core Verification Engine ---
+z3-solver>=4.12.0
+
+# --- LLM API SDKs ---
+google-generativeai>=0.5.0    # For Gemini
+anthropic>=0.20.0             # For Claude
+openai>=1.10.0                # For GPT-4, DeepSeek, etc.
+
+# --- Utilities ---
+tqdm                          # For progress bars
+python-dotenv                 # For loading .env files (Recommended)
+numpy                         # Usually needed for data handling
+pandas                        # If you use dataframes for results
+colorama                      # If you use colored terminal output

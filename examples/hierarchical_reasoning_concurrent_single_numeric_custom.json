@@ -1,0 +1,699 @@
+{
+  "experiment_meta": {
+    "scenario": "hierarchical_reasoning",
+    "config_key": "concurrent_single",
+    "data_mode": "numeric",
+    "modes": [
+      "constrained"
+    ],
+    "overrides": {
+      "render_mode": "python",
+      "naming_style": "random",
+      "generation_modes": [
+        "constrained"
+      ]
+    }
+  },
+  "test_cases": [
+    {
+      "id": "hierarchical_reasoning_000_iv2_norule_constrained",
+      "scenario_type": "hierarchical_reasoning",
+      "query_type": "constrained",
+      "code": "_var_1e3 = {}\ntrace = _var_1e3\n\ndef system_B(cyqfa_init, param_X, **kwargs):\n    trace = {}\n    _var_ezq = cyqfa_init\n    cyqfa = _var_ezq\n\n    class RecursiveSystem_DCW:\n\n        def __init__(self):\n            self.trace = {}\n\n        def layer_3(self, val_in):\n            val_qabby = val_in - 63\n            self.trace['qabby'] = val_qabby\n            return val_qabby\n\n        def layer_2(self, val_in):\n            leaf_2 = val_in + 33\n            self.trace['lttyi_local'] = leaf_2\n            _var_n4s = self.layer_3(val_in)\n            from_below = _var_n4s\n            _var_sb5 = leaf_2 + from_below\n            val_lttyi = _var_sb5\n            self.trace['lttyi'] = val_lttyi\n            return val_lttyi\n\n        def layer_1(self, val_in):\n            _var_096 = val_in % 79\n            leaf_1 = _var_096\n            self.trace['bvesr_local'] = leaf_1\n            from_below = self.layer_2(val_in)\n            _var_zt6 = leaf_1 + from_below\n            val_bvesr = _var_zt6\n            self.trace['bvesr'] = val_bvesr\n            return val_bvesr\n\n        def layer_0(self, val_in):\n            _var_yfo = val_in * param_X\n            leaf_0 = _var_yfo\n            self.trace['qupjm_local'] = leaf_0\n            from_below = self.layer_1(val_in)\n            _var_kmn = leaf_0 + from_below\n            val_qupjm = _var_kmn\n            self.trace['qupjm'] = val_qupjm\n            return val_qupjm\n    _var_f0y = RecursiveSystem_DCW()\n    runner = _var_f0y\n    final_res = runner.layer_0(cyqfa)\n    _var_err = runner.trace\n    trace = _var_err\n    trace['final_output'] = final_res\n    return trace\n_var_835 = 78\noutput_A = _var_835\ntrace['output_A'] = output_A\nparam_X = ...\ntrace['param_X'] = param_X\n_var_x3l = system_B(cyqfa_init=3, rule_switch_init=1, param_X=param_X)\npredicted_trace = _var_x3l\noutput_B = predicted_trace['qupjm']\ntrace['predicted_output_B'] = output_B\ntrace.update(predicted_trace)\nassert not output_B != output_A\nfinal_result = trace",
+      "input_parameters": {
+        "inputs_A": {
+          "KNDRJ": 68
+        },
+        "inputs_B": {
+          "CYQFA": 3,
+          "rule_switch": 1
+        }
+      },
+      "golden_answer": {
+        "param_X": 33,
+        "predicted": {
+          "predicted_output_B": 78
+        }
+      },
+      "metadata": {
+        "abstract_logic": {
+          "type": "hierarchical_reasoning_recursive",
+          "inputs": {
+            "KNDRJ": "int"
+          },
+          "rule_intervention_enabled": true,
+          "rules": {
+            "rule_A": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "KNDRJ",
+                "ZUCBB",
+                "EHYML",
+                "TOVFA",
+                "BMBHU"
+              ],
+              "inputs": {
+                "KNDRJ": "int"
+              },
+              "depth": 4,
+              "components": [
+                "ZUCBB",
+                "EHYML",
+                "TOVFA",
+                "BMBHU"
+              ],
+              "ops": [
+                [
+                  "//",
+                  31
+                ],
+                [
+                  "+",
+                  64
+                ],
+                [
+                  "//",
+                  23
+                ],
+                [
+                  "//",
+                  90
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "ZUCBB",
+              "primary_input": "KNDRJ",
+              "style": "functional_closure"
+            },
+            "rule_B": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "CYQFA",
+                "QUPJM",
+                "BVESR",
+                "LTTYI",
+                "QABBY"
+              ],
+              "inputs": {
+                "CYQFA": "int"
+              },
+              "depth": 4,
+              "components": [
+                "QUPJM",
+                "BVESR",
+                "LTTYI",
+                "QABBY"
+              ],
+              "ops": [
+                [
+                  "*",
+                  "param_X"
+                ],
+                [
+                  "%",
+                  79
+                ],
+                [
+                  "+",
+                  33
+                ],
+                [
+                  "-",
+                  63
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "QUPJM",
+              "primary_input": "CYQFA",
+              "style": "oop_class"
+            }
+          }
+        },
+        "param_X_true_value": 33,
+        "rendering_context": {
+          "inputs_B": {
+            "CYQFA": 3,
+            "rule_switch": 1
+          },
+          "output_A": 78
+        },
+        "constrained_target_var": "qupjm",
+        "solution_analysis": {
+          "count": 1,
+          "density": 0.0075,
+          "sample_solutions": [
+            33
+          ],
+          "search_range": [
+            0,
+            133
+          ]
+        }
+      }
+    },
+    {
+      "id": "hierarchical_reasoning_001_iv2_norule_constrained",
+      "scenario_type": "hierarchical_reasoning",
+      "query_type": "constrained",
+      "code": "trace = {}\n\ndef system_B(qebol_init, param_X, **kwargs):\n    _var_orz = {}\n    trace = _var_orz\n    _var_cnf = qebol_init\n    qebol = _var_cnf\n\n    class RecursiveSystem_GJF:\n\n        def __init__(self):\n            self.trace = {}\n\n        def layer_3(self, val_in):\n            _var_vp4 = val_in % 18\n            val_qnfgh = _var_vp4\n            self.trace['qnfgh'] = val_qnfgh\n            return val_qnfgh\n\n        def layer_2(self, val_in):\n            leaf_2 = val_in - 27\n            self.trace['vsyyc_local'] = leaf_2\n            from_below = self.layer_3(val_in)\n            _var_v17 = leaf_2 + from_below\n            val_vsyyc = _var_v17\n            self.trace['vsyyc'] = val_vsyyc\n            return val_vsyyc\n\n        def layer_1(self, val_in):\n            leaf_1 = val_in % 81\n            self.trace['gvucm_local'] = leaf_1\n            _var_gaa = self.layer_2(val_in)\n            from_below = _var_gaa\n            _var_zot = leaf_1 + from_below\n            val_gvucm = _var_zot\n            self.trace['gvucm'] = val_gvucm\n            return val_gvucm\n\n        def layer_0(self, val_in):\n            _var_97j = val_in + param_X\n            leaf_0 = _var_97j\n            self.trace['kklyr_local'] = leaf_0\n            _var_doi = self.layer_1(val_in)\n            from_below = _var_doi\n            val_kklyr = leaf_0 + from_below\n            self.trace['kklyr'] = val_kklyr\n            return val_kklyr\n    _var_yaz = RecursiveSystem_GJF()\n    runner = _var_yaz\n    final_res = runner.layer_0(qebol)\n    _var_156 = runner.trace\n    trace = _var_156\n    trace['final_output'] = final_res\n    return trace\noutput_A = 157\ntrace['output_A'] = output_A\nparam_X = ...\ntrace['param_X'] = param_X\n_var_v1l = system_B(qebol_init=41, rule_switch_init=1, param_X=param_X)\npredicted_trace = _var_v1l\noutput_B = predicted_trace['kklyr']\ntrace['predicted_output_B'] = output_B\ntrace.update(predicted_trace)\nassert output_B == output_A\nfinal_result = trace",
+      "input_parameters": {
+        "inputs_A": {
+          "FLJCF": 33
+        },
+        "inputs_B": {
+          "QEBOL": 41,
+          "rule_switch": 1
+        }
+      },
+      "golden_answer": {
+        "param_X": 56,
+        "predicted": {
+          "predicted_output_B": 157
+        }
+      },
+      "metadata": {
+        "abstract_logic": {
+          "type": "hierarchical_reasoning_recursive",
+          "inputs": {
+            "FLJCF": "int"
+          },
+          "rule_intervention_enabled": true,
+          "rules": {
+            "rule_A": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "FLJCF",
+                "NRFBW",
+                "FSOSX",
+                "RRHMQ",
+                "WJRLF"
+              ],
+              "inputs": {
+                "FLJCF": "int"
+              },
+              "depth": 4,
+              "components": [
+                "NRFBW",
+                "FSOSX",
+                "RRHMQ",
+                "WJRLF"
+              ],
+              "ops": [
+                [
+                  "*",
+                  39
+                ],
+                [
+                  "+",
+                  23
+                ],
+                [
+                  "%",
+                  29
+                ],
+                [
+                  "//",
+                  22
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "NRFBW",
+              "primary_input": "FLJCF",
+              "style": "oop_class"
+            },
+            "rule_B": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "QEBOL",
+                "KKLYR",
+                "GVUCM",
+                "VSYYC",
+                "QNFGH"
+              ],
+              "inputs": {
+                "QEBOL": "int"
+              },
+              "depth": 4,
+              "components": [
+                "KKLYR",
+                "GVUCM",
+                "VSYYC",
+                "QNFGH"
+              ],
+              "ops": [
+                [
+                  "+",
+                  "param_X"
+                ],
+                [
+                  "%",
+                  81
+                ],
+                [
+                  "-",
+                  27
+                ],
+                [
+                  "%",
+                  18
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "KKLYR",
+              "primary_input": "QEBOL",
+              "style": "oop_class"
+            }
+          }
+        },
+        "param_X_true_value": 56,
+        "rendering_context": {
+          "inputs_B": {
+            "QEBOL": 41,
+            "rule_switch": 1
+          },
+          "output_A": 157
+        },
+        "constrained_target_var": "kklyr",
+        "solution_analysis": {
+          "count": 1,
+          "density": 0.0064,
+          "sample_solutions": [
+            56
+          ],
+          "search_range": [
+            0,
+            156
+          ]
+        }
+      }
+    },
+    {
+      "id": "hierarchical_reasoning_002_iv2_norule_constrained",
+      "scenario_type": "hierarchical_reasoning",
+      "query_type": "constrained",
+      "code": "_var_2lu = {}\ntrace = _var_2lu\n\ndef system_B(raorw_init, param_X, **kwargs):\n    trace = {}\n    raorw = raorw_init\n\n    class RecursiveSystem_VTO:\n\n        def __init__(self):\n            self.trace = {}\n\n        def layer_3(self, val_in):\n            val_ckybs = val_in % 68\n            self.trace['ckybs'] = val_ckybs\n            return val_ckybs\n\n        def layer_2(self, val_in):\n            _var_e2h = val_in * 20\n            leaf_2 = _var_e2h\n            self.trace['jzerl_local'] = leaf_2\n            _var_7wu = self.layer_3(val_in)\n            from_below = _var_7wu\n            val_jzerl = leaf_2 + from_below\n            self.trace['jzerl'] = val_jzerl\n            return val_jzerl\n\n        def layer_1(self, val_in):\n            _var_brv = val_in // 55\n            leaf_1 = _var_brv\n            self.trace['reozu_local'] = leaf_1\n            _var_n1g = self.layer_2(val_in)\n            from_below = _var_n1g\n            _var_dt5 = leaf_1 + from_below\n            val_reozu = _var_dt5\n            self.trace['reozu'] = val_reozu\n            return val_reozu\n\n        def layer_0(self, val_in):\n            _var_7jp = val_in - param_X\n            leaf_0 = _var_7jp\n            self.trace['iamqx_local'] = leaf_0\n            _var_h5o = self.layer_1(val_in)\n            from_below = _var_h5o\n            _var_usq = leaf_0 + from_below\n            val_iamqx = _var_usq\n            self.trace['iamqx'] = val_iamqx\n            return val_iamqx\n    runner = RecursiveSystem_VTO()\n    final_res = runner.layer_0(raorw)\n    trace = runner.trace\n    trace['final_output'] = final_res\n    return trace\n_var_c5x = -11\noutput_A = _var_c5x\ntrace['output_A'] = output_A\nparam_X = ...\ntrace['param_X'] = param_X\n_var_oyn = system_B(raorw_init=4, rule_switch_init=1, param_X=param_X)\npredicted_trace = _var_oyn\noutput_B = predicted_trace['iamqx']\ntrace['predicted_output_B'] = output_B\ntrace.update(predicted_trace)\nassert output_B == output_A\nfinal_result = trace",
+      "input_parameters": {
+        "inputs_A": {
+          "QEBBZ": 10
+        },
+        "inputs_B": {
+          "RAORW": 4,
+          "rule_switch": 1
+        }
+      },
+      "golden_answer": {
+        "param_X": 99,
+        "predicted": {
+          "predicted_output_B": -11
+        }
+      },
+      "metadata": {
+        "abstract_logic": {
+          "type": "hierarchical_reasoning_recursive",
+          "inputs": {
+            "QEBBZ": "int"
+          },
+          "rule_intervention_enabled": true,
+          "rules": {
+            "rule_A": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "QEBBZ",
+                "OLXKE",
+                "HWKOJ",
+                "QVKQF",
+                "FZCLL"
+              ],
+              "inputs": {
+                "QEBBZ": "int"
+              },
+              "depth": 4,
+              "components": [
+                "OLXKE",
+                "HWKOJ",
+                "QVKQF",
+                "FZCLL"
+              ],
+              "ops": [
+                [
+                  "-",
+                  64
+                ],
+                [
+                  "+",
+                  45
+                ],
+                [
+                  "*",
+                  43
+                ],
+                [
+                  "+",
+                  13
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "OLXKE",
+              "primary_input": "QEBBZ",
+              "style": "oop_class"
+            },
+            "rule_B": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "RAORW",
+                "IAMQX",
+                "REOZU",
+                "JZERL",
+                "CKYBS"
+              ],
+              "inputs": {
+                "RAORW": "int"
+              },
+              "depth": 4,
+              "components": [
+                "IAMQX",
+                "REOZU",
+                "JZERL",
+                "CKYBS"
+              ],
+              "ops": [
+                [
+                  "-",
+                  "param_X"
+                ],
+                [
+                  "//",
+                  55
+                ],
+                [
+                  "*",
+                  20
+                ],
+                [
+                  "%",
+                  68
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "IAMQX",
+              "primary_input": "RAORW",
+              "style": "oop_class"
+            }
+          }
+        },
+        "param_X_true_value": 99,
+        "rendering_context": {
+          "inputs_B": {
+            "RAORW": 4,
+            "rule_switch": 1
+          },
+          "output_A": -11
+        },
+        "constrained_target_var": "iamqx",
+        "solution_analysis": {
+          "count": 1,
+          "density": 0.005,
+          "sample_solutions": [
+            99
+          ],
+          "search_range": [
+            0,
+            199
+          ]
+        }
+      }
+    },
+    {
+      "id": "hierarchical_reasoning_003_iv2_norule_constrained",
+      "scenario_type": "hierarchical_reasoning",
+      "query_type": "constrained",
+      "code": "trace = {}\n\ndef system_B(rsmrz_init, param_X, **kwargs):\n    _var_lb5 = {}\n    trace = _var_lb5\n    _var_qp2 = rsmrz_init\n    rsmrz = _var_qp2\n\n    def layer_3(val_in):\n        _var_kcm = val_in + 84\n        val_aoiko = _var_kcm\n        trace['aoiko'] = val_aoiko\n        return val_aoiko\n\n    def layer_2(val_in):\n        _var_v84 = val_in + 67\n        leaf_2 = _var_v84\n        trace['ddyva_local'] = leaf_2\n        _var_x24 = layer_3(val_in)\n        from_below = _var_x24\n        _var_acx = leaf_2 + from_below\n        val_ddyva = _var_acx\n        trace['ddyva'] = val_ddyva\n        return val_ddyva\n\n    def layer_1(val_in):\n        leaf_1 = val_in - 69\n        trace['ltosh_local'] = leaf_1\n        from_below = layer_2(val_in)\n        val_ltosh = leaf_1 + from_below\n        trace['ltosh'] = val_ltosh\n        return val_ltosh\n\n    def layer_0(val_in):\n        _var_z0b = val_in * param_X\n        leaf_0 = _var_z0b\n        trace['yiusk_local'] = leaf_0\n        _var_w9q = layer_1(val_in)\n        from_below = _var_w9q\n        _var_a2f = leaf_0 + from_below\n        val_yiusk = _var_a2f\n        trace['yiusk'] = val_yiusk\n        return val_yiusk\n    final_yiusk = layer_0(rsmrz)\n    _var_g59 = final_yiusk\n    val_yiusk = _var_g59\n    trace['final_output'] = final_yiusk\n    return trace\n_var_nwv = 422\noutput_A = _var_nwv\ntrace['output_A'] = output_A\nparam_X = ...\ntrace['param_X'] = param_X\npredicted_trace = system_B(rsmrz_init=4, rule_switch_init=1, param_X=param_X)\n_var_eiu = predicted_trace['yiusk']\noutput_B = _var_eiu\ntrace['predicted_output_B'] = output_B\ntrace.update(predicted_trace)\nassert output_B == output_A\nfinal_result = trace",
+      "input_parameters": {
+        "inputs_A": {
+          "FKRUY": 28
+        },
+        "inputs_B": {
+          "RSMRZ": 4,
+          "rule_switch": 1
+        }
+      },
+      "golden_answer": {
+        "param_X": 82,
+        "predicted": {
+          "predicted_output_B": 422
+        }
+      },
+      "metadata": {
+        "abstract_logic": {
+          "type": "hierarchical_reasoning_recursive",
+          "inputs": {
+            "FKRUY": "int"
+          },
+          "rule_intervention_enabled": true,
+          "rules": {
+            "rule_A": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "FKRUY",
+                "NAQPI",
+                "OQSJX",
+                "CVGZE",
+                "NARTI"
+              ],
+              "inputs": {
+                "FKRUY": "int"
+              },
+              "depth": 4,
+              "components": [
+                "NAQPI",
+                "OQSJX",
+                "CVGZE",
+                "NARTI"
+              ],
+              "ops": [
+                [
+                  "*",
+                  58
+                ],
+                [
+                  "%",
+                  36
+                ],
+                [
+                  "//",
+                  12
+                ],
+                [
+                  "+",
+                  43
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "NAQPI",
+              "primary_input": "FKRUY",
+              "style": "functional_closure"
+            },
+            "rule_B": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "RSMRZ",
+                "YIUSK",
+                "LTOSH",
+                "DDYVA",
+                "AOIKO"
+              ],
+              "inputs": {
+                "RSMRZ": "int"
+              },
+              "depth": 4,
+              "components": [
+                "YIUSK",
+                "LTOSH",
+                "DDYVA",
+                "AOIKO"
+              ],
+              "ops": [
+                [
+                  "*",
+                  "param_X"
+                ],
+                [
+                  "-",
+                  69
+                ],
+                [
+                  "+",
+                  67
+                ],
+                [
+                  "+",
+                  84
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "YIUSK",
+              "primary_input": "RSMRZ",
+              "style": "functional_closure"
+            }
+          }
+        },
+        "param_X_true_value": 82,
+        "rendering_context": {
+          "inputs_B": {
+            "RSMRZ": 4,
+            "rule_switch": 1
+          },
+          "output_A": 422
+        },
+        "constrained_target_var": "yiusk",
+        "solution_analysis": {
+          "count": 1,
+          "density": 0.0055,
+          "sample_solutions": [
+            82
+          ],
+          "search_range": [
+            0,
+            182
+          ]
+        }
+      }
+    },
+    {
+      "id": "hierarchical_reasoning_004_iv2_norule_constrained",
+      "scenario_type": "hierarchical_reasoning",
+      "query_type": "constrained",
+      "code": "_var_55m = {}\ntrace = _var_55m\n\ndef system_B(qfgbe_init, param_X, **kwargs):\n    _var_4hx = {}\n    trace = _var_4hx\n    _var_qsn = qfgbe_init\n    qfgbe = _var_qsn\n\n    def layer_3(val_in):\n        _var_hdp = val_in - 89\n        val_nfkfa = _var_hdp\n        trace['nfkfa'] = val_nfkfa\n        return val_nfkfa\n\n    def layer_2(val_in):\n        _var_9t4 = val_in % 73\n        leaf_2 = _var_9t4\n        trace['azpcd_local'] = leaf_2\n        _var_ldd = layer_3(val_in)\n        from_below = _var_ldd\n        _var_aa6 = leaf_2 + from_below\n        val_azpcd = _var_aa6\n        trace['azpcd'] = val_azpcd\n        return val_azpcd\n\n    def layer_1(val_in):\n        leaf_1 = val_in % 53\n        trace['fnzkw_local'] = leaf_1\n        _var_ymf = layer_2(val_in)\n        from_below = _var_ymf\n        val_fnzkw = leaf_1 + from_below\n        trace['fnzkw'] = val_fnzkw\n        return val_fnzkw\n\n    def layer_0(val_in):\n        leaf_0 = val_in - param_X\n        trace['vkdtu_local'] = leaf_0\n        _var_565 = layer_1(val_in)\n        from_below = _var_565\n        _var_kle = leaf_0 + from_below\n        val_vkdtu = _var_kle\n        trace['vkdtu'] = val_vkdtu\n        return val_vkdtu\n    _var_w8c = layer_0(qfgbe)\n    final_vkdtu = _var_w8c\n    _var_4hy = final_vkdtu\n    val_vkdtu = _var_4hy\n    trace['final_output'] = final_vkdtu\n    return trace\n_var_fs2 = 23\noutput_A = _var_fs2\ntrace['output_A'] = output_A\nparam_X = ...\ntrace['param_X'] = param_X\npredicted_trace = system_B(qfgbe_init=79, rule_switch_init=1, param_X=param_X)\n_var_l5o = predicted_trace['vkdtu']\noutput_B = _var_l5o\ntrace['predicted_output_B'] = output_B\ntrace.update(predicted_trace)\nassert output_B == output_A\n_var_1dq = trace\nfinal_result = _var_1dq",
+      "input_parameters": {
+        "inputs_A": {
+          "EQQVU": 77
+        },
+        "inputs_B": {
+          "QFGBE": 79,
+          "rule_switch": 1
+        }
+      },
+      "golden_answer": {
+        "param_X": 78,
+        "predicted": {
+          "predicted_output_B": 23
+        }
+      },
+      "metadata": {
+        "abstract_logic": {
+          "type": "hierarchical_reasoning_recursive",
+          "inputs": {
+            "EQQVU": "int"
+          },
+          "rule_intervention_enabled": true,
+          "rules": {
+            "rule_A": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "EQQVU",
+                "WZFVP",
+                "NDPXB",
+                "WGGTH",
+                "TKVYJ"
+              ],
+              "inputs": {
+                "EQQVU": "int"
+              },
+              "depth": 4,
+              "components": [
+                "WZFVP",
+                "NDPXB",
+                "WGGTH",
+                "TKVYJ"
+              ],
+              "ops": [
+                [
+                  "*",
+                  31
+                ],
+                [
+                  "%",
+                  53
+                ],
+                [
+                  "+",
+                  78
+                ],
+                [
+                  "+",
+                  63
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "WZFVP",
+              "primary_input": "EQQVU",
+              "style": "functional_closure"
+            },
+            "rule_B": {
+              "type": "hierarchical_reasoning_recursive",
+              "vars": [
+                "QFGBE",
+                "VKDTU",
+                "FNZKW",
+                "AZPCD",
+                "NFKFA"
+              ],
+              "inputs": {
+                "QFGBE": "int"
+              },
+              "depth": 4,
+              "components": [
+                "VKDTU",
+                "FNZKW",
+                "AZPCD",
+                "NFKFA"
+              ],
+              "ops": [
+                [
+                  "-",
+                  "param_X"
+                ],
+                [
+                  "%",
+                  53
+                ],
+                [
+                  "%",
+                  73
+                ],
+                [
+                  "-",
+                  89
+                ]
+              ],
+              "structure": "nested_invocation",
+              "output_var": "VKDTU",
+              "primary_input": "QFGBE",
+              "style": "functional_closure"
+            }
+          }
+        },
+        "param_X_true_value": 78,
+        "rendering_context": {
+          "inputs_B": {
+            "QFGBE": 79,
+            "rule_switch": 1
+          },
+          "output_A": 23
+        },
+        "constrained_target_var": "vkdtu",
+        "solution_analysis": {
+          "count": 1,
+          "density": 0.0056,
+          "sample_solutions": [
+            78
+          ],
+          "search_range": [
+            0,
+            178
+          ]
+        }
+      }
+    }
+  ]
+}
