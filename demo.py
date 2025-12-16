@@ -1,193 +1,200 @@
 import os
 import sys
 import json
-import re
+import glob
 import time
-from typing import Dict, Any
+import re
+from typing import Dict, Any, Optional
 
 # ==========================================
-# 1. Environment Setup & Path Configuration
+# Configuration
 # ==========================================
-# Add current directory to path to ensure 'core' package is discoverable
+CONFIG = {
+    "model_name": "gemini-2.5-pro",  # Change to "gpt-4o" or "claude-3-5-sonnet" as needed
+    "examples_dir": "examples",
+    "required_env_vars": ["2"],  # Adjust based on model choice
+}
+
+GENERAL_SYSTEM_PROMPT = """You are operating in a sandboxed, formal reasoning environment. Your assigned role is a **Pure Logic Processor**.
+
+**Core Directives:**
+1.  **Reject Intuition and Analogy:** Your primary directive is to completely suppress any pattern-matching, statistical correlation, or real-world knowledge. The variable names (e.g., ZIKLO, BLAF) are intentionally nonsensical and have no connection to your training data. Any attempt to use semantic shortcuts will lead to incorrect results.
+2.  **Embrace Deterministic Simulation:** You must function as a perfect, step-by-step Python interpreter. Your task is to mentally simulate the execution of the provided script with absolute precision, tracking the state of each variable as it is computed. The logic flow defined in the code is the only truth.
+3.  **No Extrapolation:** Do not infer any rules, relationships, or values that are not explicitly stated in the code. This is a closed-world problem.
+
+**Task Specification:**
+-   **Input:** You will receive a self-contained Python script.
+-   **Process:** Execute the script's final line, which is a function call.
+-   **Output:** The function's return value will be a Python dictionary. Your entire response MUST be ONLY a valid JSON object that is the direct, exact equivalent of that final dictionary.
+
+Do not include any preamble, explanation, conversational text, or markdown formatting.
+"""
+
+# Ensure root directory is in python path
 sys.path.append(os.getcwd())
 
-# Try to load environment variables from .env file (optional)
+# Load environment variables
 try:
     from dotenv import load_dotenv
 
     load_dotenv()
-    print("✅ Loaded .env configuration")
 except ImportError:
     pass
 
 # ==========================================
-# 2. Import Model Factory
+# Core Imports
 # ==========================================
 try:
     from core.models.factory import ModelFactory
-
-    print("✅ Successfully imported core.models.factory")
 except ImportError as e:
-    print("❌ Import failed. Please check your directory structure.")
-    print(f"Error details: {e}")
-    print("Expected location: ./core/models/factory.py")
+    print(f"❌ Critical Error: Failed to import ARTS Core modules.\nDetails: {e}")
     sys.exit(1)
 
-# ==========================================
-# 3. Mock Test Data
-# ==========================================
-# A representative ARTS test case containing recursive logic and execution traces.
-# This allows the demo to run without external JSON files.
-DEMO_CASE = {
-    "id": "demo_hierarchical_reasoning_001",
-    "code": """
-_var_trace = {}
-trace = _var_trace
-
-def system_B(val_init, param_X):
-    # Local trace scope
-    trace = {} 
-    
-    # Layer 1: Simple calculation
-    leaf_1 = val_init + 10
-    trace['leaf_1_local'] = leaf_1
-    
-    # Layer 0: Recursive logic
-    val_final = leaf_1 * param_X
-    trace['val_final_local'] = val_final
-    
-    return trace
-
-# Global execution
-output_A = 500
-trace['output_A'] = output_A
-
-param_X = ... # To be solved
-trace['param_X'] = param_X
-
-# Execution
-predicted_trace = system_B(val_init=40, param_X=param_X)
-output_B = predicted_trace['val_final_local']
-trace['predicted_output_B'] = output_B
-
-# [CRITICAL] Explicit merge: Merging internal traces into global scope
-trace.update(predicted_trace)
-
-final_result = trace
-""",
-    "golden_answer": {
-        "param_X": 10,  # Calculation: (40+10)*10 = 500
-        "predicted": {"predicted_output_B": 500},
-    },
-}
-
 
 # ==========================================
-# 4. Utility: Robust JSON Parser
+# Helpers
 # ==========================================
-def safe_parse_json(text: str) -> Dict[str, Any]:
+def load_test_case() -> Dict[str, Any]:
     """
-    A standalone JSON parser to handle LLM responses.
-    Can extract JSON from Markdown code blocks (```json ... ```).
+    Scans the examples directory and loads the first available test case.
+    Handles both 'single case' and 'dataset list' JSON structures.
+    """
+    pattern = os.path.join(CONFIG["examples_dir"], "*.json")
+    files = glob.glob(pattern)
+
+    if not files:
+        raise FileNotFoundError(f"No JSON files found in {CONFIG['examples_dir']}/")
+
+    target_file = files[0]
+    print(f"📂 Loading data from: {os.path.basename(target_file)}")
+
+    with open(target_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Heuristic: If it contains a list of cases, pick the first one
+    if isinstance(data, dict) and "test_cases" in data:
+        print(
+            f"   ℹ️  Dataset detected ({len(data['test_cases'])} items). Using index 0."
+        )
+        return data["test_cases"][0]
+    elif isinstance(data, list) and len(data) > 0:
+        return data[0]
+
+    return data
+
+
+def robust_json_parse(text: str) -> Dict[str, Any]:
+    """
+    Extracts JSON from LLM output, handling Markdown fences and raw strings.
     """
     try:
-        # 1. Try parsing directly
         return json.loads(text)
     except json.JSONDecodeError:
-        pass
-
-    # 2. Try extracting from ```json ... ``` blocks
-    match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
-    if match:
-        try:
+        # Fallback 1: Markdown code blocks
+        match = re.search(r"```json\s*(.*?)\s*```", text, re.DOTALL)
+        if match:
             return json.loads(match.group(1))
-        except:
-            pass
 
-    # 3. Try finding the first brace pair { ... }
-    match = re.search(r"\{.*\}", text, re.DOTALL)
-    if match:
-        try:
+        # Fallback 2: Brute-force brace matching
+        match = re.search(r"\{.*\}", text, re.DOTALL)
+        if match:
             return json.loads(match.group(0))
-        except:
-            pass
 
-    return {"error": "Failed to parse JSON", "raw": text}
+    return {"error": "JSON_PARSE_FAILED", "raw_output": text}
+
+
+def validate_result(golden: Dict[str, Any], predicted: Dict[str, Any]):
+    """
+    Compares model output against the golden answer (Ground Truth).
+    """
+    print("🏆 Validation Results:")
+
+    # 1. Check 'param_X' (Inverse Reasoning Target)
+    if "param_X" in golden:
+        exp, got = golden["param_X"], predicted.get("param_X")
+        is_match = str(exp) == str(got)
+        icon = "✅" if is_match else "❌"
+        print(f"   {icon} param_X: Expected {exp} | Got {got}")
+
+    # 2. Check 'predicted_output_B' (Execution Target)
+    # Handle nested 'predicted' dictionary in golden answer
+    golden_pred = golden.get("predicted", {})
+    for k, v in golden_pred.items():
+        # Flattened lookup: check if key exists in root or nested 'predicted'
+        got = predicted.get(k) or predicted.get("predicted", {}).get(k)
+        is_match = str(v) == str(got)
+        icon = "✅" if is_match else "❌"
+        print(f"   {icon} {k}: Expected {v} | Got {got}")
 
 
 # ==========================================
-# 5. Main Execution Logic
+# Main Execution
 # ==========================================
-def run_demo():
-    print("=" * 60)
-    print("🚀 ARTS Framework - Quick Start Demo")
-    print("=" * 60)
+def main():
+    print(f"\n🚀 ARTS Framework | Diagnostic Demo")
+    print("=" * 50)
 
-    # --- Configuration ---
-    # You can change the model here, e.g., "gpt-4o", "claude-3-5-sonnet", "gemini-2.5-pro"
-    # Ensure the corresponding API key is set in your .env file
-    MODEL_NAME = "gemini-2.5-pro"
+    # 1. Initialize Model
+    model_name = CONFIG["model_name"]
+    print(f"🤖 Initializing Model: {model_name}")
 
-    # Basic check for API Key (Example for Gemini)
-    if "gemini" in MODEL_NAME.lower() and not os.getenv("GOOGLE_API_KEY"):
-        print(f"⚠️ WARNING: GOOGLE_API_KEY not found. Model initialization might fail.")
-
-    print(f"🤖 Initializing Model: {MODEL_NAME}...")
     try:
-        model = ModelFactory.create(MODEL_NAME)
+        model = ModelFactory.create(model_name)
     except Exception as e:
-        print(f"❌ Model Initialization Failed: {e}")
-        print(
-            "💡 Hint: Ensure 'requirements.txt' is installed and API keys are set in .env"
-        )
+        print(f"❌ Model Init Failed: {e}")
+        print("   -> Check .env for API keys or requirements.txt")
         return
 
-    print(f"🧪 Loading Test Case: {DEMO_CASE['id']}")
-    print(f"📝 Code Snippet:\n{'-'*20}\n{DEMO_CASE['code'][:150]}...\n{'-'*20}")
+    # 2. Load Data
+    try:
+        case = load_test_case()
+    except Exception as e:
+        print(f"❌ Data Load Failed: {e}")
+        return
 
-    # Construct Prompt
+    # 3. Prepare Inference
+    code_snippet = case.get("code", "")
+    if not code_snippet:
+        print("❌ Error: Valid 'code' field missing in test case.")
+        return
+
+    print(f"🧪 Case ID: {case.get('id', 'Unknown')}")
+    print(f"📝 Input Code (Preview):\n{'-'*30}\n{code_snippet[:200]}...\n{'-'*30}")
+
     prompt = [
         {
             "role": "system",
-            "content": "You are a Python code analyzer. Predict the execution trace and final result. Return ONLY a JSON object.",
+            "content": GENERAL_SYSTEM_PROMPT,
         },
-        {"role": "user", "content": DEMO_CASE["code"]},
+        {"role": "user", "content": code_snippet},
     ]
 
-    print("Thinking... (This may take a few seconds)")
-    start_time = time.time()
+    # 4. Run Inference
+    print("⏳ Running Inference...")
+    t0 = time.perf_counter()
 
     try:
-        # Call the Model
-        response_text = model.call(messages=prompt)
-        duration = time.time() - start_time
+        raw_response = model.call(messages=prompt)
+        duration = time.perf_counter() - t0
 
-        # Parse Response
-        # Try using the model's built-in parser if available, fallback to local parser
+        # Parse
         if hasattr(model, "parse_response"):
-            try:
-                result_json = model.parse_response(response_text)
-            except:
-                result_json = safe_parse_json(response_text)
-        else:
-            result_json = safe_parse_json(response_text)
-
-        print(f"✅ Execution Complete (Time: {duration:.2f}s)")
-        print("=" * 60)
-        print("📊 Model Output (Parsed JSON):")
-        print(json.dumps(result_json, indent=2, ensure_ascii=False))
-        print("=" * 60)
-
-        # Simple Validation
-        expected_param_X = DEMO_CASE["golden_answer"]["param_X"]
-        if result_json.get("param_X") == expected_param_X:
-            print(
-                f"🎉 Validation PASSED! Model correctly identified param_X={expected_param_X}."
+            result = model.parse_response(raw_response) or robust_json_parse(
+                raw_response
             )
         else:
-            print(
-                f"🤔 Result Mismatch. Expected param_X={expected_param_X}, got {result_json.get('param_X')}"
-            )
+            result = robust_json_parse(raw_response)
+
+        print(f"✅ Completed in {duration:.2f}s")
+        print("=" * 50)
+        print(json.dumps(result, indent=2))
+        print("=" * 50)
+
+        # 5. Validation
+        if "golden_answer" in case:
+            validate_result(case["golden_answer"], result)
+        else:
+            print("ℹ️  No golden answer found for validation.")
 
     except Exception as e:
         print(f"❌ Runtime Error: {e}")
@@ -197,4 +204,4 @@ def run_demo():
 
 
 if __name__ == "__main__":
-    run_demo()
+    main()

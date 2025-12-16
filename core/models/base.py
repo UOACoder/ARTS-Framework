@@ -1,22 +1,35 @@
-# evaluation/models/base.py
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Any, Union, Optional
 
-# [修正] 从同级目录 metrics 导入，或者从包路径导入
-from evaluation.metrics import Evaluator 
 
 class BaseModel(ABC):
-    def __init__(self, model_name: str, api_key: str = None):
+    """
+    Abstract base class for all LLM wrappers in the ARTS framework.
+    Enforces a consistent interface for generating traces and reasoning.
+    """
+
+    def __init__(self, model_name: str, api_key: str = None, **kwargs):
         self.model_name = model_name
         self.api_key = api_key
+        self.kwargs = kwargs
 
     @abstractmethod
-    def call(self, messages: List[Dict[str, str]], temperature: float = 0.0) -> str:
-        """核心接口：返回纯文本"""
+    def call(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """
+        Execute a chat completion call.
+
+        Args:
+            messages: A list of message dictionaries (e.g., [{"role": "user", "content": "..."}])
+
+        Returns:
+            The raw string response from the model.
+        """
         pass
-    
-    def parse_response(self, raw_response: str) -> Dict:
+
+    def parse_response(self, response: str) -> Dict[str, Any]:
         """
-        通用解析逻辑，子类可以覆盖它。
+        Optional hook for model-specific response parsing.
+        Base implementation returns None, relying on the generic parser.
         """
-        return Evaluator.parse_response(raw_response)
+        # Child classes can override this if they have special output formats
+        return None
